@@ -1,0 +1,41 @@
+plugins {
+    id 'java'
+    id 'antlr'
+    id 'idea'
+}
+
+group 'com.kakaopage.antlr'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    antlr 'org.antlr:antlr4:4.10.1'
+    implementation 'org.antlr:antlr4-runtime:4.10.1'
+    implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.18.0'
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
+}
+
+generateGrammarSource {
+    maxHeapSize = "64m"
+    arguments += ["-visitor",
+                  "-long-messages",
+                  "-package", "otl"
+    ]
+
+    doLast {
+        println "Copying generated grammar lexer/parser files to main directory."
+        copy {
+            from "${buildDir}/generated-src/antlr/main"
+            into "src/main/java/otl"
+        }
+        println "Deleting generated grammar lexer/parser files."
+        delete "${buildDir}/generated-src/"
+    }
+}
+
+clean.doLast {
+    file('generated-src').deleteDir()
+}
